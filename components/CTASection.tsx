@@ -20,6 +20,7 @@ const CTASection = () => {
   })
 
   const [showSuccess, setShowSuccess] = useState(false)
+  const [showError, setShowError] = useState(false)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
@@ -51,13 +52,20 @@ ${formData.name}`
     
     // Try to open mailto link
     try {
-      window.location.href = mailtoLink
-      setShowSuccess(true)
-      setTimeout(() => setShowSuccess(false), 5000)
+      const newWindow = window.open(mailtoLink, '_blank')
+      if (newWindow) {
+        setShowSuccess(true)
+        setShowError(false)
+        setTimeout(() => setShowSuccess(false), 5000)
+      } else {
+        setShowError(true)
+        setShowSuccess(false)
+        setTimeout(() => setShowError(false), 5000)
+      }
     } catch (error) {
-      // Fallback: copy to clipboard
-      navigator.clipboard.writeText(`ניר פרידמן - ${formData.name}\n${formData.email}\n${formData.phone}\n${formData.reason}\n\n${formData.message}`)
-      alert('פרטי הפנייה הועתקו ללוח. אנא שלח אימייל ל-Nironaldo@gmail.com')
+      setShowError(true)
+      setShowSuccess(false)
+      setTimeout(() => setShowError(false), 5000)
     }
     
     // Reset form
@@ -72,7 +80,19 @@ ${formData.name}`
 
   const handleEmailClick = (email: string, subject: string, body: string) => {
     const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
-    window.location.href = mailtoLink
+    
+    try {
+      const newWindow = window.open(mailtoLink, '_blank')
+      if (!newWindow) {
+        // Fallback: copy to clipboard
+        navigator.clipboard.writeText(`${email}\nנושא: ${subject}\n\n${body}`)
+        alert(`כתובת האימייל הועתקה ללוח: ${email}`)
+      }
+    } catch (error) {
+      // Fallback: copy to clipboard
+      navigator.clipboard.writeText(`${email}\nנושא: ${subject}\n\n${body}`)
+      alert(`כתובת האימייל הועתקה ללוח: ${email}`)
+    }
   }
 
   const contactMethods = [
@@ -181,6 +201,16 @@ ${formData.name}`
               className="p-4 bg-green-500/20 border border-green-500/30 rounded-lg text-green-400 text-center hebrew-text mb-6"
             >
               ✅ ההודעה נשלחה! אימייל נפתח עם כל הפרטים.
+            </motion.div>
+          )}
+
+          {showError && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-4 bg-red-500/20 border border-red-500/30 rounded-lg text-red-400 text-center hebrew-text mb-6"
+            >
+              ⚠️ לא ניתן לפתוח אימייל. אנא שלח אימייל ישירות ל-Nironaldo@gmail.com
             </motion.div>
           )}
 
