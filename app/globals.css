@@ -2,15 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Impact&family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
 
 :root {
-  --neon-purple: #8B5CF6;
-  --neon-red: #EF4444;
-  --neon-blue: #3B82F6;
-  --dark-gray: #1F2937;
-  --matte-black: #0F0F0F;
-  --stage-black: #000000;
+  --neon-purple: #8b5cf6;
+  --neon-blue: #3b82f6;
+  --neon-red: #ef4444;
+  --neon-green: #10b981;
+  --stage-black: #0a0a0a;
+  --dark-gray: #1a1a1a;
+  --matte-black: #0f0f0f;
 }
 
 * {
@@ -24,11 +27,38 @@ html {
 }
 
 body {
-  font-family: 'Roboto', sans-serif;
-  background: var(--stage-black);
+  font-family: 'Open Sans', sans-serif;
+  background-color: var(--stage-black);
   color: white;
-  line-height: 1.6;
   overflow-x: hidden;
+}
+
+/* Prevent form jumping on mobile */
+input, textarea, select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  font-size: 16px !important; /* Prevents zoom on iOS */
+}
+
+/* Prevent page jumping when focusing on inputs */
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  transform: none !important;
+}
+
+/* Smooth scrolling for the whole page */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Prevent zoom on input focus in iOS */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  select,
+  textarea,
+  input {
+    font-size: 16px;
+  }
 }
 
 /* Custom scrollbar */
@@ -37,7 +67,7 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--matte-black);
+  background: var(--dark-gray);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -49,78 +79,223 @@ body {
   background: var(--neon-blue);
 }
 
-/* Custom utility classes */
-@layer components {
-  .neon-glow {
-    text-shadow: 0 0 10px var(--neon-purple), 0 0 20px var(--neon-purple), 0 0 30px var(--neon-purple);
-  }
-  
-  .neon-glow-red {
-    text-shadow: 0 0 10px var(--neon-red), 0 0 20px var(--neon-red), 0 0 30px var(--neon-red);
-  }
-  
-  .neon-glow-blue {
-    text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue), 0 0 30px var(--neon-blue);
-  }
-  
-  .glass-effect {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-  }
-  
-  .gradient-text {
-    background: linear-gradient(45deg, var(--neon-purple), var(--neon-blue), var(--neon-red));
-    background-size: 200% 200%;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: gradient-shift 3s ease infinite;
-  }
-  
-  .parallax-bg {
-    background-attachment: fixed;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-  }
-}
-
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* Hebrew text support */
+/* Hebrew text direction */
 .hebrew-text {
-  font-family: 'Open Sans', 'Roboto', sans-serif;
   direction: rtl;
   text-align: right;
 }
 
-/* Responsive typography */
+/* Font classes */
+.font-bebas {
+  font-family: 'Bebas Neue', cursive;
+}
+
+.font-opensans {
+  font-family: 'Open Sans', sans-serif;
+}
+
+.font-roboto {
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Neon glow effects */
+.neon-glow {
+  text-shadow: 
+    0 0 5px currentColor,
+    0 0 10px currentColor,
+    0 0 15px currentColor,
+    0 0 20px currentColor;
+}
+
+.neon-purple {
+  color: var(--neon-purple);
+}
+
+.neon-blue {
+  color: var(--neon-blue);
+}
+
+.neon-red {
+  color: var(--neon-red);
+}
+
+.neon-green {
+  color: var(--neon-green);
+}
+
+/* Background colors */
+.bg-stage-black {
+  background-color: var(--stage-black);
+}
+
+.bg-dark-gray {
+  background-color: var(--dark-gray);
+}
+
+.bg-matte-black {
+  background-color: var(--matte-black);
+}
+
+/* Glass effect */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Gradient backgrounds */
+.bg-gradient-to-b {
+  background-image: linear-gradient(to bottom, var(--dark-gray), var(--stage-black));
+}
+
+/* Custom animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 5px var(--neon-purple);
+  }
+  50% {
+    box-shadow: 0 0 20px var(--neon-purple), 0 0 30px var(--neon-purple);
+  }
+}
+
+/* Form specific styles */
+.form-input {
+  transition: all 0.3s ease;
+}
+
+.form-input:focus {
+  border-color: var(--neon-purple);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+/* Mobile specific fixes */
 @media (max-width: 768px) {
-  .hero-title {
-    font-size: 2.5rem;
+  /* Prevent viewport jumping on input focus */
+  input, textarea, select {
+    font-size: 16px !important;
+    transform: none !important;
   }
   
-  .section-title {
-    font-size: 1.8rem;
+  /* Ensure form stays in place */
+  form {
+    position: relative;
+    z-index: 1;
   }
+  
+  /* Prevent body scroll when input is focused */
+  input:focus, textarea:focus, select:focus {
+    position: relative;
+    z-index: 2;
+  }
+}
+
+/* Prevent any unwanted scrolling */
+.prevent-scroll {
+  overflow: hidden;
+}
+
+/* Smooth transitions */
+* {
+  transition: all 0.3s ease;
+}
+
+/* Custom button styles */
+.btn-neon {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.btn-neon:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
+}
+
+/* Video container styles */
+.video-container {
+  position: relative;
+  width: 100%;
+  height: 0;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+}
+
+.video-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Image styles */
+.image-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.image-container img {
+  transition: transform 0.3s ease;
+}
+
+.image-container:hover img {
+  transform: scale(1.05);
+}
+
+/* Navigation styles */
+.nav-link {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--neon-purple);
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+  width: 100%;
 }
 
 /* Loading animation */
-.loading-spinner {
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top: 2px solid var(--neon-purple);
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
   animation: spin 1s linear infinite;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+/* Success/Error message animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message-animation {
+  animation: slideIn 0.3s ease-out;
 } 

@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { FaPhone, FaEnvelope, FaWhatsapp, FaInstagram, FaFacebook, FaYoutube, FaPaperPlane } from 'react-icons/fa'
 
 const CTASection = () => {
@@ -12,6 +12,7 @@ const CTASection = () => {
   })
 
   const [isMobile, setIsMobile] = useState(false)
+  const formRef = useRef<HTMLFormElement>(null)
 
   useEffect(() => {
     const checkMobile = () => {
@@ -22,6 +23,46 @@ const CTASection = () => {
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
+
+  // Prevent form jumping on mobile
+  useEffect(() => {
+    if (isMobile && formRef.current) {
+      const inputs = formRef.current.querySelectorAll('input, textarea, select')
+      
+      const handleFocus = (e: Event) => {
+        const target = e.target as HTMLElement
+        // Prevent default scroll behavior
+        e.preventDefault()
+        
+        // Smooth scroll to input with offset
+        setTimeout(() => {
+          target.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+          })
+        }, 100)
+      }
+      
+      const handleBlur = () => {
+        // Reset scroll position if needed
+        setTimeout(() => {
+          window.scrollTo(0, window.scrollY)
+        }, 100)
+      }
+      
+      inputs.forEach(input => {
+        input.addEventListener('focus', handleFocus)
+        input.addEventListener('blur', handleBlur)
+      })
+      
+      return () => {
+        inputs.forEach(input => {
+          input.removeEventListener('focus', handleFocus)
+          input.removeEventListener('blur', handleBlur)
+        })
+      }
+    }
+  }, [isMobile])
 
   const [formData, setFormData] = useState({
     name: '',
@@ -294,7 +335,7 @@ ${formData.name}`
             </motion.div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2 hebrew-text">
@@ -307,7 +348,7 @@ ${formData.name}`
                   value={formData.name}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-neon-purple focus:ring-2 focus:ring-neon-purple/20 transition-all duration-300 hebrew-text"
+                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-neon-purple focus:ring-2 focus:ring-neon-purple/20 transition-all duration-300 hebrew-text form-input"
                   placeholder="הכנס את שמך המלא"
                 />
               </div>
@@ -323,7 +364,7 @@ ${formData.name}`
                   value={formData.email}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-neon-purple focus:ring-2 focus:ring-neon-purple/20 transition-all duration-300 hebrew-text"
+                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-neon-purple focus:ring-2 focus:ring-neon-purple/20 transition-all duration-300 hebrew-text form-input"
                   placeholder="הכנס את כתובת האימייל שלך"
                 />
               </div>
@@ -340,7 +381,7 @@ ${formData.name}`
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-neon-purple focus:ring-2 focus:ring-neon-purple/20 transition-all duration-300 hebrew-text"
+                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-neon-purple focus:ring-2 focus:ring-neon-purple/20 transition-all duration-300 hebrew-text form-input"
                   placeholder="הכנס את מספר הטלפון שלך"
                 />
               </div>
@@ -355,7 +396,7 @@ ${formData.name}`
                   value={formData.reason}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:border-neon-purple focus:ring-2 focus:ring-neon-purple/20 transition-all duration-300 hebrew-text"
+                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:border-neon-purple focus:ring-2 focus:ring-neon-purple/20 transition-all duration-300 hebrew-text form-input"
                 >
                   <option value="">בחר סיבת פנייה</option>
                   <option value="דיבוב מקצועי">דיבוב מקצועי</option>
@@ -380,7 +421,7 @@ ${formData.name}`
                 onChange={handleInputChange}
                 required
                 rows={4}
-                className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-neon-purple focus:ring-2 focus:ring-neon-purple/20 transition-all duration-300 hebrew-text resize-none"
+                className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-neon-purple focus:ring-2 focus:ring-neon-purple/20 transition-all duration-300 hebrew-text resize-none form-input"
                 placeholder="ספר לנו על הפרויקט שלך..."
               />
             </div>

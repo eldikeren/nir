@@ -80,7 +80,9 @@ export default function RootLayout({
                 // Override addEventListener to add passive by default for scroll events
                 const originalAddEventListener = EventTarget.prototype.addEventListener;
                 EventTarget.prototype.addEventListener = function(type, listener, options) {
-                  if (type === 'scroll' || type === 'wheel' || type === 'touchstart' || type === 'touchmove') {
+                  // Only add passive for scroll events, not for input events
+                  if ((type === 'scroll' || type === 'wheel' || type === 'touchstart' || type === 'touchmove') && 
+                      !this.matches && !this.closest && !this.tagName) {
                     if (options === undefined) {
                       options = { passive: true };
                     } else if (typeof options === 'object') {
@@ -92,38 +94,18 @@ export default function RootLayout({
                   return originalAddEventListener.call(this, type, listener, options);
                 };
 
-                // Add passive listeners to existing elements
+                // Add passive listeners only to window and document
                 document.addEventListener('DOMContentLoaded', function() {
-                  const addPassiveToElement = (element) => {
-                    if (element.addEventListener) {
-                      element.addEventListener('scroll', () => {}, { passive: true });
-                      element.addEventListener('wheel', () => {}, { passive: true });
-                      element.addEventListener('touchstart', () => {}, { passive: true });
-                      element.addEventListener('touchmove', () => {}, { passive: true });
-                    }
-                  };
-
-                  // Add to all existing elements
-                  document.querySelectorAll('*').forEach(addPassiveToElement);
-
-                  // Watch for new elements
-                  const observer = new MutationObserver(function(mutations) {
-                    mutations.forEach(function(mutation) {
-                      mutation.addedNodes.forEach(function(node) {
-                        if (node.nodeType === 1) { // Element node
-                          addPassiveToElement(node);
-                          if (node.querySelectorAll) {
-                            node.querySelectorAll('*').forEach(addPassiveToElement);
-                          }
-                        }
-                      });
-                    });
-                  });
-
-                  observer.observe(document.body, {
-                    childList: true,
-                    subtree: true
-                  });
+                  // Only add to window and document, not to form elements
+                  window.addEventListener('scroll', () => {}, { passive: true });
+                  window.addEventListener('wheel', () => {}, { passive: true });
+                  window.addEventListener('touchstart', () => {}, { passive: true });
+                  window.addEventListener('touchmove', () => {}, { passive: true });
+                  
+                  document.addEventListener('scroll', () => {}, { passive: true });
+                  document.addEventListener('wheel', () => {}, { passive: true });
+                  document.addEventListener('touchstart', () => {}, { passive: true });
+                  document.addEventListener('touchmove', () => {}, { passive: true });
                 });
               }
             `,
