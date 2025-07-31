@@ -9,7 +9,7 @@ import VideoSection from '@/components/VideoSection'
 import TestimonialsSection from '@/components/TestimonialsSection'
 import CTASection from '@/components/CTASection'
 import Navigation from '@/components/Navigation'
-import ParticleBackground from '@/components/ParticleBackground'
+
 
 export default function Home() {
   useEffect(() => {
@@ -43,7 +43,6 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-stage-black">
-      <ParticleBackground />
       <Navigation />
       
       <div className="relative z-10">
