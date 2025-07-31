@@ -18,8 +18,6 @@ const CTASection = () => {
     reason: '',
     message: ''
   })
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
@@ -28,79 +26,28 @@ const CTASection = () => {
     })
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setIsSubmitting(true)
-    setSubmitStatus('idle')
-
-    try {
-      // Using a new Formspree endpoint
-      const response = await fetch('https://formspree.io/f/xpzgwqjq', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          _subject: `פנייה חדשה מ-${formData.name} - ${formData.reason}`
-        }),
-      })
-
-      if (response.ok) {
-        setSubmitStatus('success')
-        setFormData({
-          name: '',
-          email: '',
-          phone: '',
-          reason: '',
-          message: ''
-        })
-      } else {
-        // Fallback to email link if Formspree fails
-        const emailBody = `
+    
+    const emailBody = `
 שם: ${formData.name}
 אימייל: ${formData.email}
 טלפון: ${formData.phone}
 סיבת פנייה: ${formData.reason}
 הודעה: ${formData.message}
-        `.trim()
-        
-        const mailtoLink = `mailto:Nironaldo@gmail.com?subject=פנייה חדשה מ-${encodeURIComponent(formData.name)} - ${encodeURIComponent(formData.reason)}&body=${encodeURIComponent(emailBody)}`
-        window.open(mailtoLink)
-        
-        setSubmitStatus('success')
-        setFormData({
-          name: '',
-          email: '',
-          phone: '',
-          reason: '',
-          message: ''
-        })
-      }
-    } catch (error) {
-      // Fallback to email link if Formspree fails
-      const emailBody = `
-שם: ${formData.name}
-אימייל: ${formData.email}
-טלפון: ${formData.phone}
-סיבת פנייה: ${formData.reason}
-הודעה: ${formData.message}
-      `.trim()
-      
-      const mailtoLink = `mailto:Nironaldo@gmail.com?subject=פנייה חדשה מ-${encodeURIComponent(formData.name)} - ${encodeURIComponent(formData.reason)}&body=${encodeURIComponent(emailBody)}`
-      window.open(mailtoLink)
-      
-      setSubmitStatus('success')
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        reason: '',
-        message: ''
-      })
-    } finally {
-      setIsSubmitting(false)
-    }
+    `.trim()
+    
+    const mailtoLink = `mailto:Nironaldo@gmail.com?subject=פנייה חדשה מ-${encodeURIComponent(formData.name)} - ${encodeURIComponent(formData.reason)}&body=${encodeURIComponent(emailBody)}`
+    window.open(mailtoLink)
+    
+    // Reset form
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
+      reason: '',
+      message: ''
+    })
   }
 
   const contactMethods = [
@@ -122,7 +69,7 @@ const CTASection = () => {
       icon: FaWhatsapp,
       title: 'ווטסאפ',
       value: '054-459-0633',
-      link: 'https://wa.me/972544590633?text=היי%20ניר%2C%20הגעתי%20אליך%20דרך%20האתר%20של%20ך%20ואני%20מעוניין%20לתאם%20איתך%20פגישה.%20תודה',
+      link: 'https://wa.me/972544590633?text=היי%20ניר%2C%20הגעתי%20אליך%20דרך%20האתר%20שלך%20ואני%20מעוניין%20לתאם%20איתך%20פגישה.%20תודה',
       color: 'neon-green'
     }
   ]
@@ -289,57 +236,20 @@ const CTASection = () => {
               />
             </div>
 
-            {/* Submit Status Messages */}
-            {submitStatus === 'success' && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="p-4 bg-green-500/20 border border-green-500/30 rounded-lg text-green-400 text-center hebrew-text"
-              >
-                ✅ ההודעה נשלחה בהצלחה! ניר יצור איתך קשר בקרוב.
-              </motion.div>
-            )}
-
-            {submitStatus === 'error' && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="p-4 bg-red-500/20 border border-red-500/30 rounded-lg text-red-400 text-center hebrew-text"
-              >
-                ❌ אירעה שגיאה בשליחת ההודעה. אנא נסה שוב או צור קשר ישירות.
-              </motion.div>
-            )}
-
             <motion.button
               type="submit"
-              disabled={isSubmitting}
               whileHover={{ 
-                scale: isSubmitting ? 1 : 1.05,
-                boxShadow: isSubmitting ? "none" : "0 0 50px rgba(139, 92, 246, 0.8)"
+                scale: 1.05,
+                boxShadow: "0 0 50px rgba(139, 92, 246, 0.8)"
               }}
-              whileTap={{ scale: isSubmitting ? 1 : 0.95 }}
-              className={`group relative inline-flex items-center px-12 py-6 rounded-full text-white font-bold text-xl overflow-hidden transition-all duration-300 ${
-                isSubmitting 
-                  ? 'bg-gray-600 cursor-not-allowed' 
-                  : 'bg-gradient-to-r from-neon-purple to-neon-blue'
-              }`}
+              whileTap={{ scale: 0.95 }}
+              className="group relative inline-flex items-center px-12 py-6 rounded-full text-white font-bold text-xl overflow-hidden transition-all duration-300 bg-gradient-to-r from-neon-purple to-neon-blue"
             >
               <span className="relative z-10 flex items-center">
-                {isSubmitting ? (
-                  <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                    שולח...
-                  </>
-                ) : (
-                  <>
-                    <FaPaperPlane className="mr-3" />
-                    שלח הודעה
-                  </>
-                )}
+                <FaPaperPlane className="mr-3" />
+                שלח הודעה
               </span>
-              {!isSubmitting && (
-                <div className="absolute inset-0 bg-gradient-to-r from-neon-red to-neon-purple opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              )}
+              <div className="absolute inset-0 bg-gradient-to-r from-neon-red to-neon-purple opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </motion.button>
           </form>
         </motion.div>
@@ -421,11 +331,11 @@ const CTASection = () => {
            <p className="text-gray-600 font-opensans hebrew-text text-sm mt-2">
              תתנו לקול של ניר לעבוד בשבילכם - בהיאהאא
            </p>
-           <p className="text-gray-600 font-opensans hebrew-text text-xs mt-4">
+           <p className="text-gray-600 font-opensans hebrew-text text-lg mt-4 neon-glow">
              האתר נבנה ע"י{' '}
              <a 
                href="mailto:info@eladkeren.com?subject=פנייה מהאתר&body=שלום%20אלעד%2C%0D%0A%0D%0Aהגעתי%20אליך%20דרך%20האתר%20של%20ניר%20פרידמן%20ואני%20מעוניין%20בשירותי%20פיתוח%20אתרים.%0D%0A%0D%0Aתודה" 
-               className="text-neon-purple hover:text-neon-blue transition-colors duration-300"
+               className="text-neon-purple hover:text-neon-blue transition-colors duration-300 font-bold text-xl"
              >
                אלעד קרן
              </a>
