@@ -2,7 +2,8 @@
 
 import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
-import { FaPhone, FaEnvelope, FaWhatsapp, FaInstagram, FaFacebook, FaYoutube } from 'react-icons/fa'
+import { useState } from 'react'
+import { FaPhone, FaEnvelope, FaWhatsapp, FaInstagram, FaFacebook, FaYoutube, FaPaperPlane } from 'react-icons/fa'
 
 const CTASection = () => {
   const [ref, inView] = useInView({
@@ -10,26 +11,79 @@ const CTASection = () => {
     threshold: 0.3,
   })
 
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    reason: '',
+    message: ''
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    })
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    setSubmitStatus('idle')
+
+    try {
+      const response = await fetch('https://formspree.io/f/xpzgwqjq', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          _subject: `פנייה חדשה מ-${formData.name} - ${formData.reason}`
+        }),
+      })
+
+      if (response.ok) {
+        setSubmitStatus('success')
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          reason: '',
+          message: ''
+        })
+      } else {
+        setSubmitStatus('error')
+      }
+    } catch (error) {
+      setSubmitStatus('error')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   const contactMethods = [
     {
       icon: FaPhone,
       title: 'טלפון',
-      value: '+972-50-123-4567',
-      link: 'tel:+972501234567',
+      value: '054-459-0633',
+      link: 'tel:+972544590633',
       color: 'neon-green'
     },
     {
       icon: FaEnvelope,
       title: 'אימייל',
-      value: 'nir@nirfriedman.com',
-      link: 'mailto:nir@nirfriedman.com',
+      value: 'Nironaldo@gmail.com',
+      link: 'mailto:Nironaldo@gmail.com',
       color: 'neon-blue'
     },
     {
       icon: FaWhatsapp,
       title: 'ווטסאפ',
-      value: '+972-50-123-4567',
-      link: 'https://wa.me/972501234567',
+      value: '054-459-0633',
+      link: 'https://wa.me/972544590633',
       color: 'neon-green'
     }
   ]
@@ -98,38 +152,157 @@ const CTASection = () => {
           </motion.p>
         </motion.div>
 
-        {/* Main CTA Button */}
+        {/* Contact Form */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 1, delay: 1.2 }}
-          className="text-center mb-16"
+          className="max-w-2xl mx-auto mb-16"
         >
-          <motion.button
-            whileHover={{ 
-              scale: 1.05,
-              boxShadow: "0 0 50px rgba(139, 92, 246, 0.8)"
-            }}
-            whileTap={{ scale: 0.95 }}
-            className="group relative inline-flex items-center px-12 py-6 bg-gradient-to-r from-neon-purple to-neon-blue rounded-full text-white font-bold text-xl overflow-hidden"
-          >
-            <span className="relative z-10">
-              צרו קשר עכשיו
-            </span>
-            <div className="absolute inset-0 bg-gradient-to-r from-neon-red to-neon-purple opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <motion.div
-              animate={{ 
-                scale: [1, 1.2, 1],
-                opacity: [0.5, 0.8, 0.5]
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2 hebrew-text">
+                  שם מלא *
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-neon-purple focus:ring-2 focus:ring-neon-purple/20 transition-all duration-300 hebrew-text"
+                  placeholder="הכנס את שמך המלא"
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2 hebrew-text">
+                  אימייל *
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-neon-purple focus:ring-2 focus:ring-neon-purple/20 transition-all duration-300 hebrew-text"
+                  placeholder="הכנס את כתובת האימייל שלך"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="phone" className="block text-sm font-medium text-gray-300 mb-2 hebrew-text">
+                  טלפון
+                </label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-neon-purple focus:ring-2 focus:ring-neon-purple/20 transition-all duration-300 hebrew-text"
+                  placeholder="הכנס את מספר הטלפון שלך"
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="reason" className="block text-sm font-medium text-gray-300 mb-2 hebrew-text">
+                  סיבת הפנייה *
+                </label>
+                <select
+                  id="reason"
+                  name="reason"
+                  value={formData.reason}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:border-neon-purple focus:ring-2 focus:ring-neon-purple/20 transition-all duration-300 hebrew-text"
+                >
+                  <option value="">בחר סיבת פנייה</option>
+                  <option value="דיבוב מקצועי">דיבוב מקצועי</option>
+                  <option value="הקלטת פודקאסט">הקלטת פודקאסט</option>
+                  <option value="קריינות לפרסומות">קריינות לפרסומות</option>
+                  <option value="הפקה מוזיקלית">הפקה מוזיקלית</option>
+                  <option value="הופעה מוזיקלית">הופעה מוזיקלית</option>
+                  <option value="שיתוף פעולה">שיתוף פעולה</option>
+                  <option value="אחר">אחר</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="message" className="block text-sm font-medium text-gray-300 mb-2 hebrew-text">
+                הודעה *
+              </label>
+              <textarea
+                id="message"
+                name="message"
+                value={formData.message}
+                onChange={handleInputChange}
+                required
+                rows={4}
+                className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-neon-purple focus:ring-2 focus:ring-neon-purple/20 transition-all duration-300 hebrew-text resize-none"
+                placeholder="ספר לנו על הפרויקט שלך..."
+              />
+            </div>
+
+            {/* Submit Status Messages */}
+            {submitStatus === 'success' && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-4 bg-green-500/20 border border-green-500/30 rounded-lg text-green-400 text-center hebrew-text"
+              >
+                ✅ ההודעה נשלחה בהצלחה! ניר יצור איתך קשר בקרוב.
+              </motion.div>
+            )}
+
+            {submitStatus === 'error' && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-4 bg-red-500/20 border border-red-500/30 rounded-lg text-red-400 text-center hebrew-text"
+              >
+                ❌ אירעה שגיאה בשליחת ההודעה. אנא נסה שוב או צור קשר ישירות.
+              </motion.div>
+            )}
+
+            <motion.button
+              type="submit"
+              disabled={isSubmitting}
+              whileHover={{ 
+                scale: isSubmitting ? 1 : 1.05,
+                boxShadow: isSubmitting ? "none" : "0 0 50px rgba(139, 92, 246, 0.8)"
               }}
-              transition={{ 
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-              className="absolute inset-0 rounded-full border-2 border-neon-purple"
-            />
-          </motion.button>
+              whileTap={{ scale: isSubmitting ? 1 : 0.95 }}
+              className={`group relative inline-flex items-center px-12 py-6 rounded-full text-white font-bold text-xl overflow-hidden transition-all duration-300 ${
+                isSubmitting 
+                  ? 'bg-gray-600 cursor-not-allowed' 
+                  : 'bg-gradient-to-r from-neon-purple to-neon-blue'
+              }`}
+            >
+              <span className="relative z-10 flex items-center">
+                {isSubmitting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                    שולח...
+                  </>
+                ) : (
+                  <>
+                    <FaPaperPlane className="mr-3" />
+                    שלח הודעה
+                  </>
+                )}
+              </span>
+              {!isSubmitting && (
+                <div className="absolute inset-0 bg-gradient-to-r from-neon-red to-neon-purple opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              )}
+            </motion.button>
+          </form>
         </motion.div>
 
         {/* Contact Methods */}
