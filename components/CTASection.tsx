@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { FaPhone, FaEnvelope, FaWhatsapp, FaInstagram, FaFacebook, FaYoutube, FaPaperPlane } from 'react-icons/fa'
 
 const CTASection = () => {
@@ -12,7 +12,6 @@ const CTASection = () => {
   })
 
   const [isMobile, setIsMobile] = useState(false)
-  const formRef = useRef<HTMLFormElement>(null)
 
   useEffect(() => {
     const checkMobile = () => {
@@ -23,46 +22,6 @@ const CTASection = () => {
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
-
-  // Prevent form jumping on mobile
-  useEffect(() => {
-    if (isMobile && formRef.current) {
-      const inputs = formRef.current.querySelectorAll('input, textarea, select')
-      
-      const handleFocus = (e: Event) => {
-        const target = e.target as HTMLElement
-        // Prevent default scroll behavior
-        e.preventDefault()
-        
-        // Smooth scroll to input with offset
-        setTimeout(() => {
-          target.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'center' 
-          })
-        }, 100)
-      }
-      
-      const handleBlur = () => {
-        // Reset scroll position if needed
-        setTimeout(() => {
-          window.scrollTo(0, window.scrollY)
-        }, 100)
-      }
-      
-      inputs.forEach(input => {
-        input.addEventListener('focus', handleFocus)
-        input.addEventListener('blur', handleBlur)
-      })
-      
-      return () => {
-        inputs.forEach(input => {
-          input.removeEventListener('focus', handleFocus)
-          input.removeEventListener('blur', handleBlur)
-        })
-      }
-    }
-  }, [isMobile])
 
   const [formData, setFormData] = useState({
     name: '',
@@ -103,59 +62,16 @@ ${formData.name}`
     
     const mailtoLink = `mailto:Nironaldo@gmail.com?subject=פנייה חדשה מ-${encodeURIComponent(formData.name)} - ${encodeURIComponent(formData.reason)}&body=${encodeURIComponent(emailBody)}`
     
-    if (isMobile) {
-      // On mobile, use direct mailto link
+    // Simple approach - just try to open the mailto link
+    try {
       window.location.href = mailtoLink
       setShowSuccess(true)
       setShowError(false)
       setTimeout(() => setShowSuccess(false), 5000)
-    } else {
-      // On desktop, try multiple methods
-      let success = false
-      
-      // Method 1: Try window.open
-      try {
-        const newWindow = window.open(mailtoLink, '_blank')
-        if (newWindow) {
-          success = true
-        }
-      } catch (error) {
-        console.log('window.open failed')
-      }
-      
-      // Method 2: Try temporary link
-      if (!success) {
-        try {
-          const tempLink = document.createElement('a')
-          tempLink.href = mailtoLink
-          tempLink.target = '_blank'
-          tempLink.style.display = 'none'
-          document.body.appendChild(tempLink)
-          tempLink.click()
-          document.body.removeChild(tempLink)
-          success = true
-        } catch (error) {
-          console.log('temp link failed')
-        }
-      }
-      
-      // Method 3: Copy to clipboard as fallback
-      if (!success) {
-        try {
-          navigator.clipboard.writeText(`To: Nironaldo@gmail.com\nSubject: פנייה חדשה מ-${formData.name} - ${formData.reason}\n\n${emailBody}`)
-          setShowError(true)
-          setShowSuccess(false)
-          setTimeout(() => setShowError(false), 5000)
-        } catch (error) {
-          setShowError(true)
-          setShowSuccess(false)
-          setTimeout(() => setShowError(false), 5000)
-        }
-      } else {
-        setShowSuccess(true)
-        setShowError(false)
-        setTimeout(() => setShowSuccess(false), 5000)
-      }
+    } catch (error) {
+      setShowError(true)
+      setShowSuccess(false)
+      setTimeout(() => setShowError(false), 5000)
     }
     
     // Reset form
@@ -171,48 +87,12 @@ ${formData.name}`
   const handleEmailClick = (email: string, subject: string, body: string) => {
     const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
     
-    if (isMobile) {
-      // On mobile, use direct mailto link
+    try {
       window.location.href = mailtoLink
-    } else {
-      // On desktop, try multiple methods
-      let success = false
-      
-      // Method 1: Try window.open
-      try {
-        const newWindow = window.open(mailtoLink, '_blank')
-        if (newWindow) {
-          success = true
-        }
-      } catch (error) {
-        console.log('window.open failed')
-      }
-      
-      // Method 2: Try temporary link
-      if (!success) {
-        try {
-          const tempLink = document.createElement('a')
-          tempLink.href = mailtoLink
-          tempLink.target = '_blank'
-          tempLink.style.display = 'none'
-          document.body.appendChild(tempLink)
-          tempLink.click()
-          document.body.removeChild(tempLink)
-          success = true
-        } catch (error) {
-          console.log('temp link failed')
-        }
-      }
-      
-      // Method 3: Copy to clipboard as fallback
-      if (!success) {
-        try {
-          navigator.clipboard.writeText(`${email}\nSubject: ${subject}\n\n${body}`)
-          alert(`כתובת האימייל הועתקה ללוח: ${email}`)
-        } catch (error) {
-          alert(`לא ניתן לפתוח אימייל. אנא שלח אימייל ישירות ל-${email}`)
-        }
-      }
+    } catch (error) {
+      // Fallback: copy to clipboard
+      navigator.clipboard.writeText(`${email}\nSubject: ${subject}\n\n${body}`)
+      alert(`כתובת האימייל הועתקה ללוח: ${email}`)
     }
   }
 
@@ -331,11 +211,11 @@ ${formData.name}`
               animate={{ opacity: 1, y: 0 }}
               className="p-4 bg-red-500/20 border border-red-500/30 rounded-lg text-red-400 text-center hebrew-text mb-6"
             >
-              ⚠️ לא ניתן לפתוח אימייל. פרטי ההודעה הועתקו ללוח.
+              ⚠️ לא ניתן לפתוח אימייל. אנא שלח אימייל ישירות ל-Nironaldo@gmail.com
             </motion.div>
           )}
 
-          <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2 hebrew-text">
@@ -348,7 +228,7 @@ ${formData.name}`
                   value={formData.name}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-neon-purple focus:ring-2 focus:ring-neon-purple/20 transition-all duration-300 hebrew-text form-input"
+                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-neon-purple focus:ring-2 focus:ring-neon-purple/20 transition-all duration-300 hebrew-text"
                   placeholder="הכנס את שמך המלא"
                 />
               </div>
@@ -364,7 +244,7 @@ ${formData.name}`
                   value={formData.email}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-neon-purple focus:ring-2 focus:ring-neon-purple/20 transition-all duration-300 hebrew-text form-input"
+                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-neon-purple focus:ring-2 focus:ring-neon-purple/20 transition-all duration-300 hebrew-text"
                   placeholder="הכנס את כתובת האימייל שלך"
                 />
               </div>
@@ -381,7 +261,7 @@ ${formData.name}`
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-neon-purple focus:ring-2 focus:ring-neon-purple/20 transition-all duration-300 hebrew-text form-input"
+                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-neon-purple focus:ring-2 focus:ring-neon-purple/20 transition-all duration-300 hebrew-text"
                   placeholder="הכנס את מספר הטלפון שלך"
                 />
               </div>
@@ -396,7 +276,7 @@ ${formData.name}`
                   value={formData.reason}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:border-neon-purple focus:ring-2 focus:ring-neon-purple/20 transition-all duration-300 hebrew-text form-input"
+                  className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:border-neon-purple focus:ring-2 focus:ring-neon-purple/20 transition-all duration-300 hebrew-text"
                 >
                   <option value="">בחר סיבת פנייה</option>
                   <option value="דיבוב מקצועי">דיבוב מקצועי</option>
@@ -421,7 +301,7 @@ ${formData.name}`
                 onChange={handleInputChange}
                 required
                 rows={4}
-                className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-neon-purple focus:ring-2 focus:ring-neon-purple/20 transition-all duration-300 hebrew-text resize-none form-input"
+                className="w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-neon-purple focus:ring-2 focus:ring-neon-purple/20 transition-all duration-300 hebrew-text resize-none"
                 placeholder="ספר לנו על הפרויקט שלך..."
               />
             </div>
