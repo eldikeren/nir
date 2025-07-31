@@ -19,6 +19,8 @@ const CTASection = () => {
     message: ''
   })
 
+  const [showSuccess, setShowSuccess] = useState(false)
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
@@ -50,6 +52,8 @@ ${formData.name}`
     // Try to open mailto link
     try {
       window.location.href = mailtoLink
+      setShowSuccess(true)
+      setTimeout(() => setShowSuccess(false), 5000)
     } catch (error) {
       // Fallback: copy to clipboard
       navigator.clipboard.writeText(`ניר פרידמן - ${formData.name}\n${formData.email}\n${formData.phone}\n${formData.reason}\n\n${formData.message}`)
@@ -66,6 +70,11 @@ ${formData.name}`
     })
   }
 
+  const handleEmailClick = (email: string, subject: string, body: string) => {
+    const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+    window.location.href = mailtoLink
+  }
+
   const contactMethods = [
     {
       icon: FaPhone,
@@ -78,7 +87,11 @@ ${formData.name}`
       icon: FaEnvelope,
       title: 'אימייל',
       value: 'Nironaldo@gmail.com',
-      link: 'mailto:Nironaldo@gmail.com?subject=פנייה מהאתר&body=שלום ניר, הגעתי אליך דרך האתר שלך ואני מעוניין לתאם איתך פגישה. תודה',
+      onClick: () => handleEmailClick(
+        'Nironaldo@gmail.com',
+        'פנייה מהאתר',
+        'שלום ניר, הגעתי אליך דרך האתר שלך ואני מעוניין לתאם איתך פגישה. תודה'
+      ),
       color: 'neon-blue'
     },
     {
@@ -161,6 +174,16 @@ ${formData.name}`
           transition={{ duration: 1, delay: 1.2 }}
           className="max-w-2xl mx-auto mb-16"
         >
+          {showSuccess && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-4 bg-green-500/20 border border-green-500/30 rounded-lg text-green-400 text-center hebrew-text mb-6"
+            >
+              ✅ ההודעה נשלחה! אימייל נפתח עם כל הפרטים.
+            </motion.div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -278,14 +301,14 @@ ${formData.name}`
           className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16"
         >
           {contactMethods.map((method, index) => (
-            <motion.a
+            <motion.div
               key={method.title}
-              href={method.link}
               initial={{ opacity: 0, y: 30 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 1.8 + index * 0.2 }}
               whileHover={{ y: -5, scale: 1.02 }}
-              className="group text-center p-6 glass-effect rounded-xl border border-neon-purple/30 hover:border-neon-purple/60 transition-all duration-300"
+              className="group text-center p-6 glass-effect rounded-xl border border-neon-purple/30 hover:border-neon-purple/60 transition-all duration-300 cursor-pointer"
+              onClick={method.onClick}
             >
               <motion.div
                 whileHover={{ rotate: 360, scale: 1.1 }}
@@ -300,7 +323,7 @@ ${formData.name}`
               <p className="text-gray-400 font-opensans hebrew-text">
                 {method.value}
               </p>
-            </motion.a>
+            </motion.div>
           ))}
         </motion.div>
 
@@ -349,12 +372,16 @@ ${formData.name}`
            </p>
            <p className="text-gray-600 font-opensans hebrew-text text-lg mt-4 neon-glow">
              האתר נבנה ע"י{' '}
-             <a 
-               href="mailto:info@eladkeren.com?subject=פנייה מהאתר&body=שלום אלעד, הגעתי אליך דרך האתר של ניר פרידמן ואני מעוניין בשירותי פיתוח אתרים. תודה" 
-               className="text-neon-purple hover:text-neon-blue transition-colors duration-300 font-bold text-xl"
+             <button 
+               onClick={() => handleEmailClick(
+                 'info@eladkeren.com',
+                 'פנייה מהאתר',
+                 'שלום אלעד, הגעתי אליך דרך האתר של ניר פרידמן ואני מעוניין בשירותי פיתוח אתרים. תודה'
+               )}
+               className="text-neon-purple hover:text-neon-blue transition-colors duration-300 font-bold text-xl cursor-pointer"
              >
                אלעד קרן
-             </a>
+             </button>
            </p>
          </motion.div>
       </div>

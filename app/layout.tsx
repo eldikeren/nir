@@ -76,23 +76,22 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               // Add passive event listeners for better performance
-              document.addEventListener('DOMContentLoaded', function() {
-                // Add passive listeners to scroll events
-                const addPassiveListeners = () => {
-                  const elements = document.querySelectorAll('*');
-                  elements.forEach(element => {
-                    if (element.addEventListener) {
-                      element.addEventListener('scroll', () => {}, { passive: true });
-                      element.addEventListener('wheel', () => {}, { passive: true });
-                      element.addEventListener('touchstart', () => {}, { passive: true });
-                      element.addEventListener('touchmove', () => {}, { passive: true });
+              if (typeof window !== 'undefined') {
+                window.addEventListener('load', function() {
+                  // Override addEventListener to add passive by default for scroll events
+                  const originalAddEventListener = EventTarget.prototype.addEventListener;
+                  EventTarget.prototype.addEventListener = function(type, listener, options) {
+                    if (type === 'scroll' || type === 'wheel' || type === 'touchstart' || type === 'touchmove') {
+                      if (options === undefined) {
+                        options = { passive: true };
+                      } else if (typeof options === 'object') {
+                        options.passive = true;
+                      }
                     }
-                  });
-                };
-                
-                // Run after a short delay to ensure all elements are loaded
-                setTimeout(addPassiveListeners, 100);
-              });
+                    return originalAddEventListener.call(this, type, listener, options);
+                  };
+                });
+              }
             `,
           }}
         />
