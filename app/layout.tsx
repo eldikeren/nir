@@ -1,34 +1,66 @@
 import type { Metadata } from 'next'
-import { Inter, Bebas_Neue, Roboto, Open_Sans } from 'next/font/google'
+import { Inter, Open_Sans } from 'next/font/google'
 import './globals.css'
 
-const inter = Inter({ subsets: ['latin'] })
-const bebasNeue = Bebas_Neue({ 
-  weight: '400',
+const inter = Inter({ 
   subsets: ['latin'],
-  variable: '--font-bebas'
+  variable: '--font-inter',
+  display: 'swap',
 })
-const roboto = Roboto({ 
-  weight: ['300', '400', '500', '700'],
-  subsets: ['latin'],
-  variable: '--font-roboto'
-})
+
 const openSans = Open_Sans({ 
-  weight: ['300', '400', '500', '600', '700'],
   subsets: ['latin'],
-  variable: '--font-opensans'
+  variable: '--font-opensans',
+  display: 'swap',
 })
 
 export const metadata: Metadata = {
-  title: 'ניר פרידמן - שחקן, זמר, מדבב, יוצר',
-  description: 'ניר פרידמן - שחקן, זמר, מדבב ויוצר ישראלי. מגלה את העוצמה שמאחורי הקול והבמה. אולפן הקלטות מקצועי לדיבוב ופודקאסטים.',
-  keywords: 'ניר פרידמן, שחקן, זמר, מדבב, דיבוב, פודקאסט, אולפן הקלטות, פלורנטין, עניין של זמן',
-  authors: [{ name: 'Nir Friedman' }],
+  title: 'ניר פרידמן - שחקן, זמר, מדבב ויוצר',
+  description: 'האתר הרשמי של ניר פרידמן - שחקן, זמר, מדבב ויוצר ישראלי. דיבוב מקצועי, הקלטות פודקאסט, קריינות ומוזיקה.',
+  keywords: 'ניר פרידמן, דיבוב, שחקן, זמר, מדבב, קריינות, פודקאסט, מוזיקה, ישראל',
+  authors: [{ name: 'ניר פרידמן' }],
+  creator: 'אלעד קרן',
+  publisher: 'ניר פרידמן',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   openGraph: {
-    title: 'ניר פרידמן - שחקן, זמר, מדבב, יוצר',
-    description: 'עולם של קול, במה ומוזיקה – במקום אחד',
-    type: 'website',
+    title: 'ניר פרידמן - שחקן, זמר, מדבב ויוצר',
+    description: 'האתר הרשמי של ניר פרידמן - שחקן, זמר, מדבב ויוצר ישראלי. דיבוב מקצועי, הקלטות פודקאסט, קריינות ומוזיקה.',
+    url: 'https://nir-friedman.vercel.app',
+    siteName: 'ניר פרידמן',
+    images: [
+      {
+        url: '/nir.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'ניר פרידמן',
+      },
+    ],
     locale: 'he_IL',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'ניר פרידמן - שחקן, זמר, מדבב ויוצר',
+    description: 'האתר הרשמי של ניר פרידמן - שחקן, זמר, מדבב ויוצר ישראלי.',
+    images: ['/nir.jpg'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: 'your-google-verification-code',
   },
 }
 
@@ -40,10 +72,32 @@ export default function RootLayout({
   return (
     <html lang="he" dir="rtl">
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Add passive event listeners for better performance
+              document.addEventListener('DOMContentLoaded', function() {
+                // Add passive listeners to scroll events
+                const addPassiveListeners = () => {
+                  const elements = document.querySelectorAll('*');
+                  elements.forEach(element => {
+                    if (element.addEventListener) {
+                      element.addEventListener('scroll', () => {}, { passive: true });
+                      element.addEventListener('wheel', () => {}, { passive: true });
+                      element.addEventListener('touchstart', () => {}, { passive: true });
+                      element.addEventListener('touchmove', () => {}, { passive: true });
+                    }
+                  });
+                };
+                
+                // Run after a short delay to ensure all elements are loaded
+                setTimeout(addPassiveListeners, 100);
+              });
+            `,
+          }}
+        />
       </head>
-      <body className={`${inter.className} ${bebasNeue.variable} ${roboto.variable} ${openSans.variable} bg-stage-black text-white overflow-x-hidden`}>
+      <body className={`${inter.variable} ${openSans.variable} font-opensans antialiased`}>
         {children}
       </body>
     </html>

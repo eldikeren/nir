@@ -29,16 +29,32 @@ const CTASection = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     
-    const emailBody = `
+    const emailBody = `שלום ניר,
+
+הגעתי אליך דרך האתר שלך.
+
+פרטי הפנייה:
 שם: ${formData.name}
 אימייל: ${formData.email}
 טלפון: ${formData.phone}
 סיבת פנייה: ${formData.reason}
-הודעה: ${formData.message}
-    `.trim()
+
+הודעה:
+${formData.message}
+
+תודה,
+${formData.name}`
     
     const mailtoLink = `mailto:Nironaldo@gmail.com?subject=פנייה חדשה מ-${encodeURIComponent(formData.name)} - ${encodeURIComponent(formData.reason)}&body=${encodeURIComponent(emailBody)}`
-    window.open(mailtoLink)
+    
+    // Try to open mailto link
+    try {
+      window.location.href = mailtoLink
+    } catch (error) {
+      // Fallback: copy to clipboard
+      navigator.clipboard.writeText(`ניר פרידמן - ${formData.name}\n${formData.email}\n${formData.phone}\n${formData.reason}\n\n${formData.message}`)
+      alert('פרטי הפנייה הועתקו ללוח. אנא שלח אימייל ל-Nironaldo@gmail.com')
+    }
     
     // Reset form
     setFormData({
@@ -62,7 +78,7 @@ const CTASection = () => {
       icon: FaEnvelope,
       title: 'אימייל',
       value: 'Nironaldo@gmail.com',
-      link: 'mailto:Nironaldo@gmail.com?subject=פנייה מהאתר&body=שלום ניר,%0D%0A%0D%0Aהגעתי אליך דרך האתר שלך ואני מעוניין לתאם איתך פגישה.%0D%0A%0D%0Aתודה',
+      link: 'mailto:Nironaldo@gmail.com?subject=פנייה מהאתר&body=שלום ניר, הגעתי אליך דרך האתר שלך ואני מעוניין לתאם איתך פגישה. תודה',
       color: 'neon-blue'
     },
     {
@@ -334,7 +350,7 @@ const CTASection = () => {
            <p className="text-gray-600 font-opensans hebrew-text text-lg mt-4 neon-glow">
              האתר נבנה ע"י{' '}
              <a 
-               href="mailto:info@eladkeren.com?subject=פנייה מהאתר&body=שלום%20אלעד%2C%0D%0A%0D%0Aהגעתי%20אליך%20דרך%20האתר%20של%20ניר%20פרידמן%20ואני%20מעוניין%20בשירותי%20פיתוח%20אתרים.%0D%0A%0D%0Aתודה" 
+               href="mailto:info@eladkeren.com?subject=פנייה מהאתר&body=שלום אלעד, הגעתי אליך דרך האתר של ניר פרידמן ואני מעוניין בשירותי פיתוח אתרים. תודה" 
                className="text-neon-purple hover:text-neon-blue transition-colors duration-300 font-bold text-xl"
              >
                אלעד קרן
