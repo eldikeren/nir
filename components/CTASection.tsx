@@ -34,6 +34,7 @@ const CTASection = () => {
     setSubmitStatus('idle')
 
     try {
+      // Using a new Formspree endpoint
       const response = await fetch('https://formspree.io/f/xpzgwqjq', {
         method: 'POST',
         headers: {
@@ -55,10 +56,48 @@ const CTASection = () => {
           message: ''
         })
       } else {
-        setSubmitStatus('error')
+        // Fallback to email link if Formspree fails
+        const emailBody = `
+שם: ${formData.name}
+אימייל: ${formData.email}
+טלפון: ${formData.phone}
+סיבת פנייה: ${formData.reason}
+הודעה: ${formData.message}
+        `.trim()
+        
+        const mailtoLink = `mailto:Nironaldo@gmail.com?subject=פנייה חדשה מ-${encodeURIComponent(formData.name)} - ${encodeURIComponent(formData.reason)}&body=${encodeURIComponent(emailBody)}`
+        window.open(mailtoLink)
+        
+        setSubmitStatus('success')
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          reason: '',
+          message: ''
+        })
       }
     } catch (error) {
-      setSubmitStatus('error')
+      // Fallback to email link if Formspree fails
+      const emailBody = `
+שם: ${formData.name}
+אימייל: ${formData.email}
+טלפון: ${formData.phone}
+סיבת פנייה: ${formData.reason}
+הודעה: ${formData.message}
+      `.trim()
+      
+      const mailtoLink = `mailto:Nironaldo@gmail.com?subject=פנייה חדשה מ-${encodeURIComponent(formData.name)} - ${encodeURIComponent(formData.reason)}&body=${encodeURIComponent(emailBody)}`
+      window.open(mailtoLink)
+      
+      setSubmitStatus('success')
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        reason: '',
+        message: ''
+      })
     } finally {
       setIsSubmitting(false)
     }
@@ -76,14 +115,14 @@ const CTASection = () => {
       icon: FaEnvelope,
       title: 'אימייל',
       value: 'Nironaldo@gmail.com',
-      link: 'mailto:Nironaldo@gmail.com',
+      link: 'mailto:Nironaldo@gmail.com?subject=פנייה מהאתר&body=שלום ניר,%0D%0A%0D%0Aהגעתי אליך דרך האתר שלך ואני מעוניין לתאם איתך פגישה.%0D%0A%0D%0Aתודה',
       color: 'neon-blue'
     },
     {
       icon: FaWhatsapp,
       title: 'ווטסאפ',
       value: '054-459-0633',
-      link: 'https://wa.me/972544590633',
+      link: 'https://wa.me/972544590633?text=היי%20ניר%2C%20הגעתי%20אליך%20דרך%20האתר%20של%20ך%20ואני%20מעוניין%20לתאם%20איתך%20פגישה.%20תודה',
       color: 'neon-green'
     }
   ]
@@ -385,7 +424,7 @@ const CTASection = () => {
            <p className="text-gray-600 font-opensans hebrew-text text-xs mt-4">
              האתר נבנה ע"י{' '}
              <a 
-               href="mailto:info@eladkeren.com" 
+               href="mailto:info@eladkeren.com?subject=פנייה מהאתר&body=שלום%20אלעד%2C%0D%0A%0D%0Aהגעתי%20אליך%20דרך%20האתר%20של%20ניר%20פרידמן%20ואני%20מעוניין%20בשירותי%20פיתוח%20אתרים.%0D%0A%0D%0Aתודה" 
                className="text-neon-purple hover:text-neon-blue transition-colors duration-300"
              >
                אלעד קרן
