@@ -1,0 +1,5 @@
+# This file ensures the public directory is tracked in git
+# Add your media files here:
+# - videos/ (for video files)
+# - images/ (for image files)
+# - audio/ (for audio files) 
