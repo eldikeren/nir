@@ -77,19 +77,53 @@ export default function RootLayout({
             __html: `
               // Add passive event listeners for better performance
               if (typeof window !== 'undefined') {
-                window.addEventListener('load', function() {
-                  // Override addEventListener to add passive by default for scroll events
-                  const originalAddEventListener = EventTarget.prototype.addEventListener;
-                  EventTarget.prototype.addEventListener = function(type, listener, options) {
-                    if (type === 'scroll' || type === 'wheel' || type === 'touchstart' || type === 'touchmove') {
-                      if (options === undefined) {
-                        options = { passive: true };
-                      } else if (typeof options === 'object') {
-                        options.passive = true;
-                      }
+                // Override addEventListener to add passive by default for scroll events
+                const originalAddEventListener = EventTarget.prototype.addEventListener;
+                EventTarget.prototype.addEventListener = function(type, listener, options) {
+                  if (type === 'scroll' || type === 'wheel' || type === 'touchstart' || type === 'touchmove') {
+                    if (options === undefined) {
+                      options = { passive: true };
+                    } else if (typeof options === 'object') {
+                      options.passive = true;
+                    } else if (typeof options === 'boolean') {
+                      options = { passive: true, capture: options };
                     }
-                    return originalAddEventListener.call(this, type, listener, options);
+                  }
+                  return originalAddEventListener.call(this, type, listener, options);
+                };
+
+                // Add passive listeners to existing elements
+                document.addEventListener('DOMContentLoaded', function() {
+                  const addPassiveToElement = (element) => {
+                    if (element.addEventListener) {
+                      element.addEventListener('scroll', () => {}, { passive: true });
+                      element.addEventListener('wheel', () => {}, { passive: true });
+                      element.addEventListener('touchstart', () => {}, { passive: true });
+                      element.addEventListener('touchmove', () => {}, { passive: true });
+                    }
                   };
+
+                  // Add to all existing elements
+                  document.querySelectorAll('*').forEach(addPassiveToElement);
+
+                  // Watch for new elements
+                  const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                      mutation.addedNodes.forEach(function(node) {
+                        if (node.nodeType === 1) { // Element node
+                          addPassiveToElement(node);
+                          if (node.querySelectorAll) {
+                            node.querySelectorAll('*').forEach(addPassiveToElement);
+                          }
+                        }
+                      });
+                    });
+                  });
+
+                  observer.observe(document.body, {
+                    childList: true,
+                    subtree: true
+                  });
                 });
               }
             `,

@@ -50,22 +50,24 @@ ${formData.name}`
     
     const mailtoLink = `mailto:Nironaldo@gmail.com?subject=פנייה חדשה מ-${encodeURIComponent(formData.name)} - ${encodeURIComponent(formData.reason)}&body=${encodeURIComponent(emailBody)}`
     
-    // Try to open mailto link
+    // Create a temporary link and click it
+    const tempLink = document.createElement('a')
+    tempLink.href = mailtoLink
+    tempLink.target = '_blank'
+    tempLink.style.display = 'none'
+    document.body.appendChild(tempLink)
+    
     try {
-      const newWindow = window.open(mailtoLink, '_blank')
-      if (newWindow) {
-        setShowSuccess(true)
-        setShowError(false)
-        setTimeout(() => setShowSuccess(false), 5000)
-      } else {
-        setShowError(true)
-        setShowSuccess(false)
-        setTimeout(() => setShowError(false), 5000)
-      }
+      tempLink.click()
+      setShowSuccess(true)
+      setShowError(false)
+      setTimeout(() => setShowSuccess(false), 5000)
     } catch (error) {
       setShowError(true)
       setShowSuccess(false)
       setTimeout(() => setShowError(false), 5000)
+    } finally {
+      document.body.removeChild(tempLink)
     }
     
     // Reset form
@@ -76,23 +78,6 @@ ${formData.name}`
       reason: '',
       message: ''
     })
-  }
-
-  const handleEmailClick = (email: string, subject: string, body: string) => {
-    const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
-    
-    try {
-      const newWindow = window.open(mailtoLink, '_blank')
-      if (!newWindow) {
-        // Fallback: copy to clipboard
-        navigator.clipboard.writeText(`${email}\nנושא: ${subject}\n\n${body}`)
-        alert(`כתובת האימייל הועתקה ללוח: ${email}`)
-      }
-    } catch (error) {
-      // Fallback: copy to clipboard
-      navigator.clipboard.writeText(`${email}\nנושא: ${subject}\n\n${body}`)
-      alert(`כתובת האימייל הועתקה ללוח: ${email}`)
-    }
   }
 
   const contactMethods = [
@@ -107,11 +92,7 @@ ${formData.name}`
       icon: FaEnvelope,
       title: 'אימייל',
       value: 'Nironaldo@gmail.com',
-      onClick: () => handleEmailClick(
-        'Nironaldo@gmail.com',
-        'פנייה מהאתר',
-        'שלום ניר, הגעתי אליך דרך האתר שלך ואני מעוניין לתאם איתך פגישה. תודה'
-      ),
+      link: 'mailto:Nironaldo@gmail.com?subject=פנייה מהאתר&body=שלום ניר, הגעתי אליך דרך האתר שלך ואני מעוניין לתאם איתך פגישה. תודה',
       color: 'neon-blue'
     },
     {
@@ -331,14 +312,16 @@ ${formData.name}`
           className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16"
         >
           {contactMethods.map((method, index) => (
-            <motion.div
+            <motion.a
               key={method.title}
+              href={method.link}
+              target="_blank"
+              rel="noopener noreferrer"
               initial={{ opacity: 0, y: 30 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 1.8 + index * 0.2 }}
               whileHover={{ y: -5, scale: 1.02 }}
               className="group text-center p-6 glass-effect rounded-xl border border-neon-purple/30 hover:border-neon-purple/60 transition-all duration-300 cursor-pointer"
-              onClick={method.onClick}
             >
               <motion.div
                 whileHover={{ rotate: 360, scale: 1.1 }}
@@ -353,7 +336,7 @@ ${formData.name}`
               <p className="text-gray-400 font-opensans hebrew-text">
                 {method.value}
               </p>
-            </motion.div>
+            </motion.a>
           ))}
         </motion.div>
 
@@ -402,16 +385,14 @@ ${formData.name}`
            </p>
            <p className="text-gray-600 font-opensans hebrew-text text-lg mt-4 neon-glow">
              האתר נבנה ע"י{' '}
-             <button 
-               onClick={() => handleEmailClick(
-                 'info@eladkeren.com',
-                 'פנייה מהאתר',
-                 'שלום אלעד, הגעתי אליך דרך האתר של ניר פרידמן ואני מעוניין בשירותי פיתוח אתרים. תודה'
-               )}
+             <a 
+               href="mailto:info@eladkeren.com?subject=פנייה מהאתר&body=שלום אלעד, הגעתי אליך דרך האתר של ניר פרידמן ואני מעוניין בשירותי פיתוח אתרים. תודה"
+               target="_blank"
+               rel="noopener noreferrer"
                className="text-neon-purple hover:text-neon-blue transition-colors duration-300 font-bold text-xl cursor-pointer"
              >
                אלעד קרן
-             </button>
+             </a>
            </p>
          </motion.div>
       </div>
