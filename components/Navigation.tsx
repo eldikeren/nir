@@ -43,6 +43,7 @@ const Navigation = () => {
     { name: 'שירותים', href: '#services' },
     { name: 'האולפן', href: '#studio' },
     { name: 'וידאו', href: '#video' },
+    { name: 'מותגים', href: '#testimonials' },
     { name: 'צור קשר', href: '#contact' },
   ]
 
